@@ -123,5 +123,4 @@ public class Demo {
         return Files.probeContentType(filePath);
     }
 
-
 }
