@@ -26,11 +26,11 @@ public class Demo {
                     handleClient(client);
                     Instant end = Instant.now();
                     logger.info("End Time : " +end);
-                    Duration elapsedTime = Duration.between(start,end);
-                    logger.info("Duration of Request and Response : " +elapsedTime);
-                    String formattedElapsedTime = String.format("%02d:%02d:%02d", elapsedTime.toHoursPart(), elapsedTime.toMinutesPart(),
-                            elapsedTime.toSecondsPart());
-                    logger.info("Formatted Time Duration : " +formattedElapsedTime);
+                    long elapsedTime = Duration.between(start,end).toMillis();
+                    logger.info("Duration of Request and Response : " +elapsedTime+"milliseconds");
+//                    String formattedElapsedTime = String.format("%02d:%02d:%02d", elapsedTime.toHoursPart(), elapsedTime.toMinutesPart(),
+//                            elapsedTime.toSecondsPart());
+//                    logger.info("Formatted Time Duration : " +formattedElapsedTime);
                 }
             }
         }
@@ -74,7 +74,7 @@ public class Demo {
 //            byte[] notFoundContent = "<h1>Not found :(</h1>".getBytes();
 //            badResponse(client,"404 Not Found", "text/html",notFoundContent);
 //            String contentType = guessContentType(filePath);
-            badResponse(client);
+            badResponse(client, "404 Not Found");
 
         }
 
@@ -92,7 +92,22 @@ public class Demo {
         client.close();
     }
 
-    private static void badResponse(Socket client) throws IOException {
+    private static void badResponse(Socket client, String status) throws IOException {
+        OutputStream clientOutput = client.getOutputStream();
+        clientOutput.write(("HTTP/1.1 " + status+"\r\n").getBytes());
+        clientOutput.write("\r\n\r\n".getBytes());
+        clientOutput.flush();
+        clientOutput.close();
+        client.close();
+    }
+
+//    private static void badResponse(Socket client) throws IOException {
+//        OutputStream clientOutput = client.getOutputStream();
+//        clientOutput.write("HTTP/1.1 404 Not Found\r\n".getBytes());
+//        clientOutput.write("\r\n\r\n".getBytes());
+//        clientOutput.flush();
+//        client.close();
+//    }
 //        OutputStream clientOutput = client.getOutputStream();
 //        clientOutput.write(status.getBytes());
 //        clientOutput.write(contentType.getBytes());
@@ -101,15 +116,11 @@ public class Demo {
 //        clientOutput.flush();
 //        clientOutput.close();
 //        client.close();
-        OutputStream clientOutput = client.getOutputStream();
-        clientOutput.write("HTTP/1.1 404 Not Found\r\n".getBytes());
-        clientOutput.write(("ContentType: text/html\r\n").getBytes());
-        clientOutput.write("\r\n".getBytes());
-        clientOutput.write("<b>It works!</b>".getBytes());
-        clientOutput.write("\r\n\r\n".getBytes());
-        clientOutput.flush();
-        client.close();
-    }
+
+//        clientOutput.write(("ContentType: text/html\r\n").getBytes());
+//        clientOutput.write("\r\n".getBytes());
+//        clientOutput.write("<b>It works!</b>".getBytes());
+
 
     private static Path getFilePath(String path) {
         if ("/".equals(path)) {
